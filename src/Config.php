@@ -64,9 +64,9 @@ abstract class Config implements ConfigObjectInterface, ValidateableConfigInterf
 	 * @param array
 	 * @return $this
 	 */
-	public static function createFromArray(array $array)
+	public static function createFromArray(array $array, $validate = true)
 	{
-		return new static($array);
+		return new static($array, $validate);
 	}
 
 	protected function _createFromArray(array $config, $validate = true)

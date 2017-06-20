@@ -50,13 +50,29 @@ class Foo {
 
 	protected $config;
 
-	public function __construct(FooConfig $config) {
+	public function __construct(FooConfig $config)
+	{
 		$this->config = $config;
 	}
 }
 
 $foo = new Foo($config);
 ````
+
+For a soft migration path you can still do this:
+
+```php
+class Foo {
+
+	protected $config;
+
+	public function __construct(array $config = [])
+	{
+		$this->config = FooConfig::createFromArray($config);
+	}
+}
+```
+
 
 ## License
 
