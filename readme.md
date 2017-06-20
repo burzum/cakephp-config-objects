@@ -45,6 +45,16 @@ Then just use it:
 ```php
 $config = new FooConfig();
 $config->setBar('some-value);
+
+class Foo {
+
+	protected $config;
+
+	public function __construct(FooConfig $config) {
+		$this->config = $config;
+	}
+}
+
 $foo = new Foo($config);
 ````
 

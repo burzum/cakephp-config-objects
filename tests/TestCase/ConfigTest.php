@@ -4,27 +4,33 @@ namespace Burzum\ObjectConfig\TestCase;
 use Burzum\ObjectConfig\Config;
 use Cake\TestSuite\TestCase;
 
+// @codingStandardsIgnoreStart
 class TestConfig extends Config
 {
-
 	protected $_defaultConfig = [
 		'test' => 'test1'
 	];
 
 	public function setMyValue($value)
 	{
-		$this->_config['test'] = $value;
+		$this->set('test', $value);
 	}
 
 	public function getMyValue()
 	{
-		$this->_get('test');
+		return $this->get('test');
 	}
 }
+// @codingStandardsIgnoreEnd
 
 class ConfigTest extends TestCase
 {
 
+	/**
+	 * testConstructor
+	 *
+	 * @return void
+	 */
 	public function testConstructor()
 	{
 		$config = new TestConfig([
@@ -36,12 +42,29 @@ class ConfigTest extends TestCase
 		$this->assertEquals('two', $config->get('bar'));
 	}
 
-	public function testGettersAndSetters() {
+	/**
+	 * testGettersAndSetters
+	 *
+	 * @return void
+	 */
+	public function testGettersAndSetters()
+	{
 		$config = new TestConfig();
+
 		$this->assertEquals('test1', $config->get('test'));
 		$this->assertEquals('test1', $config->getMyValue());
 
-		$this->assertEquals('test1', $config->setMyValue('test', 'test2'));
-		$this->assertEquals('test2', $config->getMyValue());
+		$config->setMyValue('changed');
+		$this->assertEquals('changed', $config->getMyValue());
+
+		$config->setOther('other');
+		$this->assertEquals('other', $config->getOther());
+
+		$expected = [
+			'test' => 'changed',
+			'other' => 'other'
+		];
+		$result = $config->toArray();
+		$this->assertEquals($expected, $result);
 	}
 }

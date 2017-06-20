@@ -16,172 +16,226 @@ use RuntimeException;
  * The configuration object can optionally be validated to ensure the integrity
  * of the configuration data.
  */
-abstract class Config implements ConfigObjectInterface
+abstract class Config implements ConfigObjectInterface, ValidateableConfigInterface
 {
 
-    use InstanceConfigTrait;
+	use InstanceConfigTrait;
 
-    protected $_strictSetters = false;
+	protected $_strictSetters = false;
 
-    protected $_strictGetters = false;
+	protected $_strictGetters = false;
 
-    protected $_defaultValidatorClass = '\Cake\Validation\Validator';
+	protected $_defaultValidatorClass = Validator::class;
 
-    /**
-     * The errors if any
-     *
-     * @var array
-     */
-    protected $_errors = [];
+	/**
+	 * The errors if any
+	 *
+	 * @var array
+	 */
+	protected $_errors = [];
 
-    /**
-     * The validator used by this form.
-     *
-     * @var \Cake\Validation\Validator;
-     */
-    protected $_validator;
+	/**
+	 * The validator used by this form.
+	 *
+	 * @var \Cake\Validation\Validator;
+	 */
+	protected $_validator;
 
-    protected $_defaultConfig = [];
+	/**
+	 * Default config
+	 *
+	 * @var array
+	 */
+	protected $_defaultConfig = [];
 
-    /**
-     * Constructor
-     *
-     * @param array $config Config data
-     */
-    public function __construct(array $config = [], $validate = true)
-    {
-        $this->_setFromArray($config, $validate);
-    }
+	/**
+	 * Constructor
+	 *
+	 * @param array $config Config data
+	 */
+	public function __construct(array $config = [], $validate = true)
+	{
+		$this->_createFromArray($config, $validate);
+	}
 
-    protected function _setFromArray(array $config, $validate = true)
-    {
-        foreach ($config as $key => $value) {
-            $method = 'set' . $key;
-            if ($this->_strictSetters) {
-                $this->{$method}($value);
-                continue;
-            }
+	/**
+	 * Creates a new object from a config array
+	 *
+	 * @param array
+	 * @return $this
+	 */
+	public static function createFromArray(array $array)
+	{
+		return new static($array);
+	}
 
-            if (method_exists($this, $method)) {
-                $this->{$method}($value);
-            }
+	protected function _createFromArray(array $config, $validate = true)
+	{
+		if (empty($config)) {
+			$this->setConfig($this->_defaultConfig);
 
-            $this->set($key, $value);
-        }
+			return;
+		}
 
-        if ($validate === true) {
-            $this->validate();
-        }
-    }
+		foreach ($config as $key => $value) {
+			$method = 'set' . $key;
+			if ($this->_strictSetters) {
+				$this->{$method}($value);
+				continue;
+			}
 
-    public function getValidator()
-    {
-        if (empty($this->_validator)) {
-            $this->_validator = new $this->_defaultValidatorClass();
-        }
+			if (method_exists($this, $method)) {
+				$this->{$method}($value);
+			}
 
-        return $this->_buildValidator($this->_validator);
-    }
+			$this->setConfig($key, $value);
+		}
 
-    public function setValidator(Validator $validator)
-    {
-        $this->_validator = $validator;
-    }
+		if ($validate === true) {
+			$this->validate();
+		}
+	}
 
-    /**
-     * Validates the configuration integrity
-     */
-    public function validate()
-    {
-        $validator = $this->getValidator();
-        $this->_errors = $validator->errors($this->_config);
+	/**
+	 * Gets the current validator instance
+	 *
+	 * @return \Cake\Validation\Validator;
+	 */
+	public function getValidator()
+	{
+		if (empty($this->_validator)) {
+			$this->_validator = new $this->_defaultValidatorClass();
+		}
 
-        if (count($this->_errors) > 0) {
-            throw new RuntimeException(__CLASS__ . ' has invalid configuration options');
-        }
-    }
+		return $this->_buildValidator($this->_validator);
+	}
 
-    /**
-     * A hook method intended to be implemented by subclasses.
-     *
-     * You can use this method to define the validator using
-     * the methods on Cake\Validation\Validator or loads a pre-defined
-     * validator from a concrete class.
-     *
-     * @param \Cake\Validation\Validator $validator The validator to customize.
-     * @return \Cake\Validation\Validator The validator to use.
-     */
-    protected function _buildValidator(Validator $validator)
-    {
-        return $validator;
-    }
+	/**
+	 * Sets the validator
+	 *
+	 * @return $this
+	 */
+	public function setValidator(Validator $validator)
+	{
+		$this->_validator = $validator;
 
-    /**
-     * Get the errors
-     *
-     * @return array Last set validation errors.
-     */
-    public function getErrors()
-    {
-        return $this->_errors;
-    }
+		return $this;
+	}
 
-    /**
-     * @return get
-     */
-    public function get($key)
-    {
-        if ($this->_strictGetters) {
-            throw new BadMethodCallException();
-        }
+	/**
+	 * Validates the configuration integrity
+	 */
+	public function validate()
+	{
+		$validator = $this->getValidator();
+		$this->_errors = $validator->errors($this->_config);
 
-        $method = '_get' . $key;
-        if (method_exists($this, $method)) {
-            return $this->{$method}();
-        }
+		if (count($this->_errors) > 0) {
+			throw new RuntimeException(__CLASS__ . ' has invalid configuration options');
+		}
+	}
 
-        return $this->_get($key);
-    }
+	/**
+	 * A hook method intended to be implemented by subclasses.
+	 *
+	 * You can use this method to define the validator using
+	 * the methods on Cake\Validation\Validator or loads a pre-defined
+	 * validator from a concrete class.
+	 *
+	 * @param \Cake\Validation\Validator $validator The validator to customize.
+	 * @return \Cake\Validation\Validator The validator to use.
+	 */
+	protected function _buildValidator(Validator $validator)
+	{
+		return $validator;
+	}
 
-    protected function _get($key)
-    {
-        if (!isset($this->_config[$key])) {
-            throw new InvalidArgumentException(sprintf('Config option `%s` does not exist', $key));
-        }
-        return $this->_config[$key];
-    }
+	/**
+	 * Get the errors
+	 *
+	 * @return array Last set validation errors.
+	 */
+	public function getErrors()
+	{
+		return $this->_errors;
+	}
 
-    /**
-     * @return void
-     */
-    public function set($key, $value)
-    {
-        if ($this->_strictSetters) {
-            throw new BadMethodCallException();
-        }
+	/**
+	 * Gets a config option
+	 *
+	 * @return get
+	 */
+	public function get($key)
+	{
+		if ($this->_strictGetters) {
+			throw new BadMethodCallException();
+		}
 
-        $method = '_set' . $key;
-        if (method_exists($this, $method)) {
-            return $this->{$method}($key, $value);
-        }
+		if (!isset($this->_config[$key])) {
+			throw new InvalidArgumentException(sprintf(
+				'Config option `%s` does not exist',
+				$key
+			));
+		}
 
-        $this->setConfig($key, $value);
-    }
+		return $this->getConfig($key);
+	}
 
-    public function toArray()
-    {
-        if ($this->_strictGetters) {
-            throw new BadMethodCallException();
-        }
+	/**
+	 * Sets an option
+	 *
+	 * @param string $key Key
+	 * @param mixed $value Value
+	 * @return void
+	 */
+	public function set($key, $value)
+	{
+		if ($this->_strictSetters) {
+			throw new BadMethodCallException();
+		}
 
-        return $this->_config;
-    }
+		$this->setConfig($key, $value);
+	}
 
-    public function __debugInfo()
-    {
-        return [
-            '[config]' => $this->_config,
-            '[errors]' => $this->_errors
-        ];
-    }
+	/**
+	 * Turns the config object into an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		if ($this->_strictGetters) {
+			throw new BadMethodCallException();
+		}
+
+		return $this->_config;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __call($name, $arguments)
+	{
+		if (substr($name, 0, 3) === 'get') {
+			return $this->get(lcfirst(substr($name, 3)));
+		}
+
+		if (substr($name, 0, 3) === 'set' && isset($arguments[0])) {
+			return $this->set(lcfirst(substr($name, 3)), $arguments[0]);
+		}
+	}
+
+	/**
+	 * Debug information about internal states of the object
+	 *
+	 * @return array
+	 */
+	public function __debugInfo()
+	{
+		return [
+			'[_config]' => $this->_config,
+			'[_defaultConfig]' => $this->_defaultConfig,
+			'[_errors]' => $this->_errors
+		];
+	}
 }
