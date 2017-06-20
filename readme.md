@@ -14,13 +14,13 @@ You should use objects instead of arrays because:
 So instead of doing something like 
 
 ```php
-class Foo(array $config []);
+class Foo(array $config);
 ```
 
 do this
 
 ```php
-class Foo(FooConfig $config []);
+class Foo(FooConfig $config);
 ```
 
 ## How to use it
@@ -32,11 +32,11 @@ use Burzum\ObjectConfig\Config;
 
 class FooConfig extends Config {
 
-	protected $_defaults = [
+	protected $_defaultConfig = [
 		// Set your default values here
 	];
 
-	/* Your setter methods go here */
+	/* Your setter / getter methods go here */
 }
 ```
 
