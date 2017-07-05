@@ -1,11 +1,11 @@
 <?php
 namespace Burzum\ObjectConfig\TestCase;
 
-use Burzum\ObjectConfig\Config;
+use Burzum\ObjectConfig\ValidateableConfig;
 use Cake\TestSuite\TestCase;
 
 // @codingStandardsIgnoreStart
-class TestConfig extends Config
+class TestConfig extends ValidateableConfig
 {
 	protected $_defaultConfig = [
 		'test' => 'test1'

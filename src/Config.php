@@ -5,7 +5,6 @@ use BadMethodCallException;
 use Cake\Core\InstanceConfigTrait;
 use Cake\Validation\Validator;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * Concrete base class for configuration objects
@@ -16,30 +15,20 @@ use RuntimeException;
  * The configuration object can optionally be validated to ensure the integrity
  * of the configuration data.
  */
-abstract class Config implements ConfigObjectInterface, ValidateableConfigInterface
+abstract class Config implements ConfigObjectInterface
 {
 
 	use InstanceConfigTrait;
 
+	/**
+	 * @var bool
+	 */
 	protected $_strictSetters = false;
 
+	/**
+	 * @var bool
+	 */
 	protected $_strictGetters = false;
-
-	protected $_defaultValidatorClass = Validator::class;
-
-	/**
-	 * The errors if any
-	 *
-	 * @var array
-	 */
-	protected $_errors = [];
-
-	/**
-	 * The validator used by this form.
-	 *
-	 * @var \Cake\Validation\Validator;
-	 */
-	protected $_validator;
 
 	/**
 	 * Default config
@@ -93,45 +82,6 @@ abstract class Config implements ConfigObjectInterface, ValidateableConfigInterf
 
 		if ($validate === true) {
 			$this->validate();
-		}
-	}
-
-	/**
-	 * Gets the current validator instance
-	 *
-	 * @return \Cake\Validation\Validator;
-	 */
-	public function getValidator()
-	{
-		if (empty($this->_validator)) {
-			$this->_validator = new $this->_defaultValidatorClass();
-		}
-
-		return $this->_buildValidator($this->_validator);
-	}
-
-	/**
-	 * Sets the validator
-	 *
-	 * @return $this
-	 */
-	public function setValidator(Validator $validator)
-	{
-		$this->_validator = $validator;
-
-		return $this;
-	}
-
-	/**
-	 * Validates the configuration integrity
-	 */
-	public function validate()
-	{
-		$validator = $this->getValidator();
-		$this->_errors = $validator->errors($this->_config);
-
-		if (count($this->_errors) > 0) {
-			throw new RuntimeException(__CLASS__ . ' has invalid configuration options');
 		}
 	}
 
