@@ -1,7 +1,5 @@
 # Object Config for CakePHP
 
-**This plugin is work in progress!**
-
 ## Objects!? Why not arrays?
 
 You should use objects instead of arrays because:
