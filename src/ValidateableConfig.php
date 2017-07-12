@@ -13,4 +13,20 @@ namespace Burzum\ObjectConfig;
 class ValidateableConfig extends Config implements ConfigObjectInterface, ValidateableConfigInterface
 {
 	use ValidatorTrait;
+
+	/**
+	 * Debug information about internal states of the object
+	 *
+	 * @return array
+	 */
+	public function __debugInfo()
+	{
+		$info = parent::__debugInfo();
+
+		return array_merge($info, [
+			'[_defaultValidatorClass]' => $this->_errors,
+			'[_validator]' => $this->_errors,
+			'[_errors]' => $this->_errors,
+		]);
+	}
 }

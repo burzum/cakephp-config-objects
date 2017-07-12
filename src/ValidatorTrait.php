@@ -31,10 +31,11 @@ trait ValidatorTrait {
 	public function getValidator()
 	{
 		if (empty($this->_validator)) {
-			$this->_validator = new $this->_defaultValidatorClass();
+			$class = $this->_defaultValidatorClass;
+			$this->_validator = new $class();
 		}
 
-		return $this->_buildValidator($this->_validator);
+		return $this->_validator;
 	}
 
 	/**

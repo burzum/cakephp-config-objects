@@ -15,9 +15,10 @@ use InvalidArgumentException;
  * The configuration object can optionally be validated to ensure the integrity
  * of the configuration data.
  */
-abstract class Config implements ConfigObjectInterface
+abstract class Config implements ConfigObjectInterface, \ArrayAccess
 {
 
+	use ArrayAccessTrait;
 	use InstanceConfigTrait;
 
 	/**
@@ -83,21 +84,6 @@ abstract class Config implements ConfigObjectInterface
 		if ($validate === true) {
 			$this->validate();
 		}
-	}
-
-	/**
-	 * A hook method intended to be implemented by subclasses.
-	 *
-	 * You can use this method to define the validator using
-	 * the methods on Cake\Validation\Validator or loads a pre-defined
-	 * validator from a concrete class.
-	 *
-	 * @param \Cake\Validation\Validator $validator The validator to customize.
-	 * @return \Cake\Validation\Validator The validator to use.
-	 */
-	protected function _buildValidator(Validator $validator)
-	{
-		return $validator;
 	}
 
 	/**
@@ -185,7 +171,6 @@ abstract class Config implements ConfigObjectInterface
 		return [
 			'[_config]' => $this->_config,
 			'[_defaultConfig]' => $this->_defaultConfig,
-			'[_errors]' => $this->_errors
 		];
 	}
 }

@@ -59,6 +59,8 @@ class Foo {
 $foo = new Foo($config);
 ````
 
+### Migrating arrays to objects
+
 For a soft migration path you can still do this:
 
 ```php
@@ -73,6 +75,22 @@ class Foo {
 }
 ```
 
+### Array access
+
+The `Config` class implements `\ArrayAccess`. So even when you change the signature of a method to require a specific type of object, your underlying code can still access the config like an array:
+
+```php
+$config = new Config();
+$config['arrayaccess'] = 'value';
+
+echo $config['arrayaccess'];
+```
+
+Or you can simply get the whole config as array by calling:
+
+```php
+$configArray = $config->toArray();
+```
 
 ## License
 

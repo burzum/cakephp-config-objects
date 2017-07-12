@@ -67,4 +67,17 @@ class ConfigTest extends TestCase
 		$result = $config->toArray();
 		$this->assertEquals($expected, $result);
 	}
+
+	/**
+	 * testArrayAccess
+	 */
+	public function testArrayAccess()
+	{
+		$config = new TestConfig();
+
+		$config['array'] = 'value';
+		$this->assertEquals('value', $config['array']);
+		unset($config['array']);
+		$this->assertFalse(isset($config['array']));
+	}
 }
